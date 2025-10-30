@@ -1,0 +1,388 @@
+{
+	"info": {
+		"_postman_id": "07f08182-ca1a-48f7-ba50-eef5a4122337",
+		"name": "Chakray",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28384486"
+	},
+	"item": [
+		{
+			"name": "All Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Sorted By Name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=name",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "name"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Sorted By Email",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=email",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "email"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Sorted By Phone",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=phone",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "phone"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Sorted By tax_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=tax_id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "tax_id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users Sorted By created_at",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=created_at",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "created_at"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - name contains 'user'",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?filter=name+co+user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "name+co+user"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - mail ends with 'mail.com'",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?filter=email+ew+mail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "email+ew+mail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - Phone Starts with '+52'",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?filter=phone+sw+%2B52",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "phone+sw+%2B52"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - Tax ID Equals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?filter=tax_id+eq+AARR990101XXX",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "tax_id+eq+AARR990101XXX"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Up Users",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"ana.lopez@company.com\",\r\n  \"name\": \"Ana López\",\r\n  \"phone\": \"+52 55 111 222 33\",\r\n  \"password\": \"anaPass2024\",\r\n  \"tax_id\": \"LOAA900101DEF\",\r\n  \"addresses\": [\r\n    {\r\n      \"id\": 1,\r\n      \"name\": \"casa\",\r\n      \"street\": \"Calle Morelos 100\",\r\n      \"country_code\": \"MX\"\r\n    },\r\n    {\r\n      \"id\": 2,\r\n      \"name\": \"oficina\",\r\n      \"street\": \"Insurgentes Sur 200\",\r\n      \"country_code\": \"MX\"\r\n    },\r\n    {\r\n      \"id\": 3,\r\n      \"name\": \"vacaciones\",\r\n      \"street\": \"Beach Road 50\",\r\n      \"country_code\": \"US\"\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9001/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Nombre Actualizado\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9001/users/cebb27c3-1549-40dd-a19f-f46b6c2a2383",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users",
+						"cebb27c3-1549-40dd-a19f-f46b6c2a2383"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Users",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users/cebb27c3-1549-40dd-a19f-f46b6c2a2383",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users",
+						"cebb27c3-1549-40dd-a19f-f46b6c2a2383"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sorted By & Filter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9001/users?sortedBy=email&filter=email+ew+mail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"users"
+					],
+					"query": [
+						{
+							"key": "sortedBy",
+							"value": "email"
+						},
+						{
+							"key": "filter",
+							"value": "email+ew+mail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"tax_id\": \"AARR990101XXX\",\r\n  \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9001/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
