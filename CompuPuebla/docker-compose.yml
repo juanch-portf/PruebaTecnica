@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  spring-app:
+    build: .
+    container_name: spring-app
+    ports:
+      - "${APP_PORT:-9005}:9005"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    depends_on: []

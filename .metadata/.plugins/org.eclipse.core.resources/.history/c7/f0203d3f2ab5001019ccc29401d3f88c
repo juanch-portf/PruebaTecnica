@@ -1,0 +1,5 @@
+package com.jacg.Prueba.Exception;
+
+public class GolbalExceptionHandler {
+
+}

@@ -1,0 +1,400 @@
+package com.jacg.Prueba;
+
+import com.jacg.Prueba.Exception.BadRequestException;
+import com.jacg.Prueba.Exception.NotFoundException;
+import com.jacg.Prueba.Entity.User;
+import com.jacg.Prueba.Repository.UserRepository;
+import com.jacg.Prueba.Services.Encrypt;
+import com.jacg.Prueba.Services.UserService;
+import com.jacg.Prueba.Validations.NumberValidator;
+import com.jacg.Prueba.Validations.RFCValidator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+    
+    @Mock
+    private UserRepository userRepository;
+    
+    @Mock
+    private Encrypt encrypt;
+    
+    @Mock
+    private RFCValidator rfcVal;
+    
+    @Mock
+    private NumberValidator NumberVal;
+    
+    @InjectMocks
+    private UserService userService;
+    
+    private User testUser;
+    
+    @BeforeEach
+    void setUp() {
+        testUser = User.builder()
+                .id(UUID.randomUUID())
+                .email("test@mail.com")
+                .name("testuser")
+                .phone("+52 55 123 456 78")
+                .password("encrypted_password")
+                .taxId("AARR990101XXX")
+                .createdAt("29-10-2025 12:00:00")
+                .addresses(new ArrayList<>())
+                .build();
+    }
+    
+    @Test
+    void testGetAllUsers_WithoutFilters() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act
+        List<User> result = userService.getAllUsers(null, null);
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertNull(result.get(0).getPassword()); // Password debe ser null en respuesta
+        verify(userRepository, times(1)).findAll();
+    }
+    
+    @Test
+    void testGetAllUsers_WithSorting() {
+        // Arrange
+        User user2 = User.builder()
+                .id(UUID.randomUUID())
+                .email("aaa@mail.com")
+                .name("aaa")
+                .phone("+52 55 111 111 11")
+                .taxId("BBBB990101XXX")
+                .createdAt("29-10-2025 12:00:00")
+                .build();
+        
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser, user2));
+        
+        // Act
+        List<User> result = userService.getAllUsers("name", null);
+        
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("aaa", result.get(0).getName()); // Debe estar ordenado
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_Contains() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act
+        List<User> result = userService.getAllUsers(null, "name+co+test");
+        
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getName().contains("test"));
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_Equals() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act
+        List<User> result = userService.getAllUsers(null, "tax_id+eq+AARR990101XXX");
+        
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals("AARR990101XXX", result.get(0).getTaxId());
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_StartsWith_Email() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act
+        List<User> result = userService.getAllUsers(null, "email+sw+test");
+        
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getEmail().startsWith("test"));
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_StartsWith_Phone() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act - Buscar teléfonos que empiecen con "52" (sin el +)
+        List<User> result = userService.getAllUsers(null, "phone+sw+52");
+        
+        // Assert - No encontrará porque el teléfono empieza con "+"
+        assertEquals(0, result.size());
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_StartsWith_PhoneWithPlus() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act - Buscar teléfonos que empiecen con "+52"
+        List<User> result = userService.getAllUsers(null, "phone+sw++52");
+        
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getPhone().startsWith("+52"));
+    }
+    
+    @Test
+    void testGetAllUsers_WithFilter_EndsWith() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act
+        List<User> result = userService.getAllUsers(null, "email+ew+mail.com");
+        
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getEmail().endsWith("mail.com"));
+    }
+    
+    @Test
+    void testGetAllUsers_WithInvalidFilter() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.getAllUsers(null, "invalid_filter");
+        });
+    }
+    
+    @Test
+    void testGetAllUsers_WithInvalidOperator() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.getAllUsers(null, "name+invalid+test");
+        });
+    }
+    
+    @Test
+    void testGetAllUsers_WithInvalidField() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.getAllUsers(null, "invalid_field+co+test");
+        });
+    }
+    
+    @Test
+    void testCreateUser_Success() {
+        // Arrange
+        User newUser = User.builder()
+                .email("new@mail.com")
+                .name("newuser")
+                .phone("+52 55 999 888 77")
+                .password("plainPassword")
+                .taxId("CCCC990101XXX")
+                .build();
+        
+        when(rfcValidator.isValid(any())).thenReturn(true);
+        when(phoneValidator.isValid(any())).thenReturn(true);
+        when(userRepository.existsByTaxId(any())).thenReturn(false);
+        when(encryptionService.encrypt(any())).thenReturn("encrypted_password");
+        when(userRepository.save(any())).thenReturn(newUser);
+        
+        // Act
+        User result = userService.createUser(newUser);
+        
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getPassword()); // Password removido en respuesta
+        verify(encryptionService, times(1)).encrypt("plainPassword");
+        verify(userRepository, times(1)).save(any());
+    }
+    
+    @Test
+    void testCreateUser_InvalidRFC() {
+        // Arrange
+        User newUser = User.builder()
+                .email("new@mail.com")
+                .name("newuser")
+                .phone("+52 55 999 888 77")
+                .password("plainPassword")
+                .taxId("INVALID")
+                .build();
+        
+        when(rfcValidator.isValid(any())).thenReturn(false);
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.createUser(newUser);
+        });
+    }
+    
+    @Test
+    void testCreateUser_InvalidPhone() {
+        // Arrange
+        User newUser = User.builder()
+                .email("new@mail.com")
+                .name("newuser")
+                .phone("123")
+                .password("plainPassword")
+                .taxId("CCCC990101XXX")
+                .build();
+        
+        when(rfcValidator.isValid(any())).thenReturn(true);
+        when(phoneValidator.isValid(any())).thenReturn(false);
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.createUser(newUser);
+        });
+    }
+    
+    @Test
+    void testCreateUser_DuplicateTaxId() {
+        // Arrange
+        User newUser = User.builder()
+                .email("new@mail.com")
+                .name("newuser")
+                .phone("+52 55 999 888 77")
+                .password("plainPassword")
+                .taxId("AARR990101XXX")
+                .build();
+        
+        when(rfcValidator.isValid(any())).thenReturn(true);
+        when(phoneValidator.isValid(any())).thenReturn(true);
+        when(userRepository.existsByTaxId(any())).thenReturn(true);
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.createUser(newUser);
+        });
+    }
+    
+    @Test
+    void testUpdateUser_Success() {
+        // Arrange
+        UUID userId = testUser.getId();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", "updatedName");
+        
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any())).thenReturn(testUser);
+        
+        // Act
+        User result = userService.updateUser(userId, updates);
+        
+        // Assert
+        assertNotNull(result);
+        verify(userRepository, times(1)).save(any());
+    }
+    
+    @Test
+    void testUpdateUser_NotFound() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        Map<String, Object> updates = new HashMap<>();
+        
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> {
+            userService.updateUser(userId, updates);
+        });
+    }
+    
+    @Test
+    void testDeleteUser_Success() {
+        // Arrange
+        UUID userId = testUser.getId();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        
+        // Act
+        userService.deleteUser(userId);
+        
+        // Assert
+        verify(userRepository, times(1)).deleteById(userId);
+    }
+    
+    @Test
+    void testDeleteUser_NotFound() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> {
+            userService.deleteUser(userId);
+        });
+    }
+    
+    @Test
+    void testAuthenticate_Success() {
+        // Arrange
+        String taxId = "AARR990101XXX";
+        String plainPassword = "mypassword";
+        String encryptedPassword = "encrypted";
+        
+        testUser.setPassword(encryptedPassword);
+        
+        when(userRepository.findByTaxId(taxId)).thenReturn(Optional.of(testUser));
+        when(encryptionService.decrypt(encryptedPassword)).thenReturn(plainPassword);
+        
+        // Act
+        User result = userService.authenticate(taxId, plainPassword);
+        
+        // Assert
+        assertNotNull(result);
+        assertNull(result.getPassword());
+        assertEquals(taxId, result.getTaxId());
+    }
+    
+    @Test
+    void testAuthenticate_InvalidCredentials() {
+        // Arrange
+        String taxId = "AARR990101XXX";
+        when(userRepository.findByTaxId(taxId)).thenReturn(Optional.empty());
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.authenticate(taxId, "password");
+        });
+    }
+    
+    @Test
+    void testAuthenticate_WrongPassword() {
+        // Arrange
+        String taxId = "AARR990101XXX";
+        String plainPassword = "wrongpassword";
+        String correctPassword = "mypassword";
+        String encryptedPassword = "encrypted";
+        
+        testUser.setPassword(encryptedPassword);
+        
+        when(userRepository.findByTaxId(taxId)).thenReturn(Optional.of(testUser));
+        when(encryptionService.decrypt(encryptedPassword)).thenReturn(correctPassword);
+        
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            userService.authenticate(taxId, plainPassword);
+        });
+    }
+}

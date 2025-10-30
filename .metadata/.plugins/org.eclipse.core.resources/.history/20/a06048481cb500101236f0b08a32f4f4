@@ -1,0 +1,5 @@
+package com.jacg.Prueba.Repository;
+
+public class UserRepository {
+
+}
